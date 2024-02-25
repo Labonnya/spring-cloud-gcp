@@ -1,0 +1,29 @@
+name: Maven Build, Test, and Nondex
+
+on:
+  push:
+    branches:
+      - nondex_action  # Change this to the branch you want to trigger the workflow on
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'  # Change this to your desired Java version
+
+      - name: Build with Maven and skip tests
+        run: mvn clean install -DskipTests -pl spring-cloud-gcp-data-spanner -am
+
+      - name: Run specific test
+        run: mvn -pl spring-cloud-gcp-data-spanner test -Dtest=com.google.cloud.spring.data.spanner.repository.query.SpannerQueryLookupStrategyTests#getChildrenRowsQueryTest
+
+      - name: Run Nondex test
+        run: mvn -pl spring-cloud-gcp-data-spanner edu.illinois:nondex-maven-plugin:2.1.1:nondex -Dtest=com.google.cloud.spring.data.spanner.repository.query.SpannerQueryLookupStrategyTests#getChildrenRowsQueryTest
+
